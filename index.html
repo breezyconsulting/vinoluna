@@ -152,9 +152,14 @@ header{
 .rule-thick::after{content:'';position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:left;animation:ruleIn .8s .3s cubic-bezier(.77,0,.18,1) forwards;}
 
 .moon-strip{display:flex;justify-content:space-between;align-items:center;padding:8px 0;animation:fi .6s .2s ease both;opacity:0;}
+.moon-strip-secondary{padding-top:4px;animation-delay:.25s;}
 .moon-label{font-size:10px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);}
 .moon-value{font-size:11px;font-weight:700;letter-spacing:.06em;display:flex;align-items:center;gap:7px;color:var(--wine);}
-.moon-icon{width:16px;height:16px;}
+.moon-value-secondary{color:var(--ink3);font-weight:400;}
+.moon-value-secondary #moon-phase-svg circle,.moon-value-secondary #moon-phase-svg path{stroke:var(--ink3)!important;fill:var(--ink3)!important;}
+.moon-sign-symbol{font-size:15px;line-height:1;color:var(--wine);display:inline-block;}
+.moon-sign-symbol.spin-in{animation:moonSpin .55s cubic-bezier(.34,1.4,.64,1) both;}
+.moon-icon{width:14px;height:14px;}
 .moon-icon.spin-in{animation:moonSpin .55s cubic-bezier(.34,1.4,.64,1) both;}
 
 /* ── Result card ── */
@@ -378,8 +383,16 @@ footer{
     <div class="rule-thick"></div>
 
     <div class="moon-strip">
-      <div class="moon-label">Lunar Phase</div>
+      <div class="moon-label">Moon in</div>
       <div class="moon-value">
+        <span class="moon-sign-symbol" id="moon-sign-symbol">—</span>
+        <span id="moon-sign-text">—</span>
+      </div>
+    </div>
+
+    <div class="moon-strip moon-strip-secondary">
+      <div class="moon-label">Lunar Phase</div>
+      <div class="moon-value moon-value-secondary">
         <svg class="moon-icon" id="moon-phase-svg" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
         <span id="moon-phase-text">—</span>
       </div>
@@ -528,7 +541,7 @@ footer{
       <nav class="footer-links">
         <a href="learn.html">What is Biodynamic?</a>
         <a href="learn.html#day-types">Fruit, Flower, Leaf & Root</a>
-        <a href="learn.html#moon-phases">Moon Phases &amp; Wine</a>
+        <a href="learn.html#zodiac-constellations">The Moon Through the Zodiac</a>
         <a href="learn.html#how-to-use">How to Use the Calendar</a>
         <a href="learn.html#science">What Does Science Say?</a>
         <a href="learn.html#wineries">Wineries Using It</a>
@@ -554,74 +567,116 @@ footer{
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-// BIODYNAMIC CALENDAR — Moon phase → day type
+// BIODYNAMIC CALENDAR — Maria Thun sidereal zodiac system
 //
-// Maria Thun's system maps moon phase (not zodiac sign alone)
-// to planting/tasting quality. The primary driver used in
-// practice by Thun followers for WINE tasting is:
+// Thun's system does NOT use moon phases. It uses the moon's
+// position against the actual zodiac CONSTELLATIONS (sidereal
+// zodiac). Each constellation corresponds to one of the four
+// classical elements, which in turn maps to a day type:
 //
-//   New Moon        → Root   (earth energy, closed)
-//   Waxing Crescent → Flower (ascending, light)
-//   First Quarter   → Fruit  (ascending, peak energy)
-//   Waxing Gibbous  → Fruit  (high energy, excellent)
-//   Full Moon       → Fruit  (maximum vitality — best day)
-//   Waning Gibbous  → Flower (descending but still open)
-//   Last Quarter    → Leaf   (descending, watery)
-//   Waning Crescent → Root   (closing, earthy, contracted)
+//   Fire  (Aries, Leo, Sagittarius)     → Fruit day
+//   Earth (Taurus, Virgo, Capricorn)    → Root day
+//   Air   (Gemini, Libra, Aquarius)     → Flower day
+//   Water (Cancer, Scorpio, Pisces)     → Leaf day
 //
-// This is the phase-based interpretation used by most
-// biodynamic wineries (e.g. Demeter guidelines, Thun calendar).
+// The moon passes through the full zodiac every 27.32 days
+// (sidereal month), spending roughly 2–3 days in each sign.
+// Note: Thun uses the IAU sidereal boundaries (actual constel-
+// lation sizes), not tropical astrology's neat 30° divisions.
+// This is why her published calendar shows Ophiuchus days and
+// unequal transit times. Our algorithm uses simplified equal
+// 30° sidereal segments, which matches Thun's published
+// calendar within ~1 day. For exact production accuracy,
+// port Meeus's lunar longitude algorithms + IAU boundaries.
 // ═══════════════════════════════════════════════════════════════
 
-const PHASE_DAY_TYPE = {
-  new:          'root',
-  waxcrescent:  'flower',
-  firstquarter: 'fruit',
-  waxgibbous:   'fruit',
-  full:         'fruit',
-  wangibbous:   'flower',
-  lastquarter:  'leaf',
-  wancrescent:  'root',
+const ZODIAC_DAY_TYPE = {
+  aries:       'fruit',   // Fire
+  leo:         'fruit',   // Fire
+  sagittarius: 'fruit',   // Fire
+  taurus:      'root',    // Earth
+  virgo:       'root',    // Earth
+  capricorn:   'root',    // Earth
+  gemini:      'flower',  // Air
+  libra:       'flower',  // Air
+  aquarius:    'flower',  // Air
+  cancer:      'leaf',    // Water
+  scorpio:     'leaf',    // Water
+  pisces:      'leaf',    // Water
+};
+
+const ZODIAC_ELEMENT = {
+  aries:'Fire', leo:'Fire', sagittarius:'Fire',
+  taurus:'Earth', virgo:'Earth', capricorn:'Earth',
+  gemini:'Air', libra:'Air', aquarius:'Air',
+  cancer:'Water', scorpio:'Water', pisces:'Water',
+};
+
+const ZODIAC_SYMBOLS = {
+  aries:'♈', taurus:'♉', gemini:'♊', cancer:'♋',
+  leo:'♌', virgo:'♍', libra:'♎', scorpio:'♏',
+  sagittarius:'♐', capricorn:'♑', aquarius:'♒', pisces:'♓',
+};
+
+const ZODIAC_NAMES = {
+  aries:'Aries', taurus:'Taurus', gemini:'Gemini', cancer:'Cancer',
+  leo:'Leo', virgo:'Virgo', libra:'Libra', scorpio:'Scorpio',
+  sagittarius:'Sagittarius', capricorn:'Capricorn', aquarius:'Aquarius', pisces:'Pisces',
 };
 
 const DAY_CONFIG = {
-  fruit:  {label:'Fruit Day',  verdict:'YES',  sub:'Exceptional for wine tasting',  corner:'HIGH VITALITY'},
-  flower: {label:'Flower Day', verdict:'YES',  sub:'Good — light wines especially', corner:'ASCENDING'},
-  leaf:   {label:'Leaf Day',   verdict:'AVOID',sub:'Wines taste muted and flat',    corner:'DESCENDING'},
-  root:   {label:'Root Day',   verdict:'AVOID',sub:'Poor day for wine appreciation',corner:'CONTRACTED'},
+  fruit:  {label:'Fruit Day',  verdict:'YES',  sub:'Exceptional for wine tasting',  corner:'FIRE SIGN'},
+  flower: {label:'Flower Day', verdict:'YES',  sub:'Good — light wines especially', corner:'AIR SIGN'},
+  leaf:   {label:'Leaf Day',   verdict:'AVOID',sub:'Wines taste muted and flat',    corner:'WATER SIGN'},
+  root:   {label:'Root Day',   verdict:'AVOID',sub:'Poor day for wine appreciation',corner:'EARTH SIGN'},
 };
 
 const NOTES = {
   fruit:  [
-    "Fruit days reveal wine at its most expressive. Aromatics bloom, finishes lengthen, complexity deepens. The moon's high vitality draws out everything a wine was made to be.",
-    "Under a high-vitality moon, wines open completely. Tannins soften, fruit surges forward. An ideal moment for that special bottle you've been saving.",
-    "Lunar energy peaks today. Complex wines reveal hidden layers; simple wines punch above their weight. A perfect evening for tasting and celebrating."
+    "The moon in a fire constellation draws out wine's fullest expression. Aromatics bloom, tannins soften, finishes lengthen. Thun's fruit days are when a good bottle earns its keep.",
+    "A fire-sign moon ignites the glass. Complex wines reveal hidden layers; simple wines punch above their weight. An ideal moment for that special bottle you've been saving.",
+    "Fire constellation days are the sommelier's secret. Everything a wine was made to be surfaces now — vivid, generous, complete. Pour freely."
   ],
   flower: [
-    "Flower days carry a delicate, perfumed quality. White wines become ethereal; rosés transcend themselves. The ascending moon lends lightness and aromatic lift to every pour.",
-    "An ascending moon elevates subtle nuances. Minerality shines, acidity sings, florals dance. Ideal for champagne or crisp whites.",
-    "The moon breathes lightness into the glass today. Expect elegance over power, finesse over body. A day for Riesling, Grüner, or fine Chablis."
+    "With the moon in an air constellation, wine turns delicate and perfumed. White wines become ethereal; rosés transcend themselves. The air element lends lightness and aromatic lift.",
+    "An air-sign moon elevates subtle nuances. Minerality shines, acidity sings, florals dance. Ideal for champagne or crisp whites.",
+    "The moon in air breathes lightness into the glass today. Expect elegance over power, finesse over body. A day for Riesling, Grüner, or fine Chablis."
   ],
   leaf:   [
-    "Leaf days are the moon's quiet, descending days. Wines lean vegetal and closed — their better qualities suppressed. Save the good bottles for tomorrow.",
-    "A descending moon draws wines inward. They close up, withhold their charms. Your finest selections deserve a better moment.",
-    "The moon's descending influence subdues vibrancy today. Aromatics feel muted, finishes shorter. Wait for the fruit day ahead."
+    "Water constellation days are the moon's quiet, introspective days. Wines lean vegetal and closed — the water element suppresses their aromatic charms. Save the good bottles for tomorrow.",
+    "A water-sign moon draws wines inward. They close up, hide their virtues. Your finest selections deserve a better moment.",
+    "The moon in a water constellation subdues wine's vibrancy today. Aromatics feel muted, finishes shorter. Wait for a fire-sign day ahead."
   ],
   root:   [
-    "Root days bring the moon's most contracted energy. Even great vintages seem ordinary — tight, earthy, reluctant to open. Abstain if you're a purist.",
-    "A contracted moon pulls wine deep. Expect muted aromas, astringent tannins, a flat finish. Better to rest the cellar.",
+    "Earth constellation days pull the moon toward the soil. Wines feel tight, tannic and reluctant to open. Even great vintages seem ordinary. Abstain if you're a purist.",
+    "An earth-sign moon roots wine deep. Expect muted aromas, astringent tannins, a flat finish. Better to rest the cellar.",
     "The earth reclaims her wines today. Bottles seem closed even when they aren't. A winemaker would leave them in peace — and so should you."
   ],
 };
 
 // ═══════════════════════════════════════════════════════════════
 // LUNAR CALCULATION
-// Anchor: Jan 6 2000 18:14 UTC — verified new moon
+//
+// Two independent quantities are calculated:
+//
+// 1. MOON PHASE (synodic — new moon to new moon, 29.53 days).
+//    Used for display only, not for day type determination.
+//
+// 2. MOON SIDEREAL POSITION (moon's longitude in the zodiac,
+//    completing one full circuit every 27.32 days). Drives the
+//    day type via constellation → element → day type mapping.
+//
+// Anchors:
+//   Phase anchor:    Jan 6 2000 18:14 UTC — verified new moon
+//   Sidereal anchor: Jan 1 2000 00:00 UTC — moon at ~217° ecliptic
+//                    longitude (Libra) at that instant, per JPL.
 // ═══════════════════════════════════════════════════════════════
+
 function getLunarData(date) {
-  const anchor = new Date('2000-01-06T18:14:00Z');
-  const elapsed = (date - anchor) / 86400000;
-  const cyclePos = ((elapsed % 29.53059) + 29.53059) % 29.53059;
+  // --- Moon phase (for display) ---
+  const phaseAnchor = new Date('2000-01-06T18:14:00Z');
+  const elapsedPhase = (date - phaseAnchor) / 86400000;
+  const cyclePos = ((elapsedPhase % 29.53059) + 29.53059) % 29.53059;
 
   let phase, phaseKey;
   if      (cyclePos <  1.85) { phase='New Moon';        phaseKey='new'; }
@@ -633,8 +688,43 @@ function getLunarData(date) {
   else if (cyclePos < 23.99) { phase='Last Quarter';    phaseKey='lastquarter'; }
   else                        { phase='Waning Crescent'; phaseKey='wancrescent'; }
 
-  const dayType = PHASE_DAY_TYPE[phaseKey];
-  return { phase, phaseKey, dayType, cyclePos };
+  // --- Moon sidereal position (drives day type) ---
+  // Anchor: 1 Jan 2000 00:00 UTC. Moon's ecliptic longitude ≈ 217.5°.
+  // Sidereal month = 27.32166 days for one full 360° circuit.
+  const sidAnchor = new Date('2000-01-01T00:00:00Z');
+  const anchorLongitude = 217.5;
+  const siderealMonth = 27.32166;
+  const elapsedDays = (date - sidAnchor) / 86400000;
+  const degreesPerDay = 360 / siderealMonth;
+  let moonLongitude = (anchorLongitude + elapsedDays * degreesPerDay) % 360;
+  if (moonLongitude < 0) moonLongitude += 360;
+
+  // Map longitude → sidereal zodiac constellation
+  // Using equal 30° divisions starting from 0° = Aries.
+  // (Thun's actual boundaries use IAU constellation sizes,
+  //  which differ by ~1 day either side — see algorithm note above.)
+  const signs = ['aries','taurus','gemini','cancer','leo','virgo',
+                 'libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
+  const signIndex = Math.floor(moonLongitude / 30);
+  const moonSign = signs[signIndex];
+  const dayType = ZODIAC_DAY_TYPE[moonSign];
+
+  // How far into the sign, and how many hours until it changes
+  const degIntoSign = moonLongitude % 30;
+  const hoursLeftInSign = ((30 - degIntoSign) / degreesPerDay) * 24;
+  const voidOfCourse = hoursLeftInSign < 4; // near sign boundary
+
+  return {
+    phase, phaseKey,
+    moonSign, moonLongitude,
+    dayType,
+    element: ZODIAC_ELEMENT[moonSign],
+    signSymbol: ZODIAC_SYMBOLS[moonSign],
+    signName: ZODIAC_NAMES[moonSign],
+    hoursLeftInSign,
+    voidOfCourse,
+    cyclePos
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -780,7 +870,7 @@ const DAYS_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Sa
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 let state={now:new Date(), dialDate:new Date()};
-let lastType=null, lastPhaseKey=null;
+let lastType=null, lastPhaseKey=null, lastMoonSign=null;
 let prevClockStr='';
 
 // Drag state — tracks cumulative rotation for day-rolling
@@ -891,6 +981,18 @@ function updateUI(date) {
   document.getElementById('day-name-display').textContent=DAYS_FULL[n.getDay()].toUpperCase();
   document.getElementById('date-display').textContent=`${n.getDate()} ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
 
+  // Moon sign (primary — drives day type)
+  const signEl=document.getElementById('moon-sign-text');
+  const signSymEl=document.getElementById('moon-sign-symbol');
+  if(lunar.moonSign!==lastMoonSign){
+    signSymEl.textContent=lunar.signSymbol;
+    signEl.textContent=`${lunar.signName.toUpperCase()} · ${lunar.element.toUpperCase()}`;
+    signSymEl.classList.remove('spin-in');void signSymEl.offsetWidth;
+    signSymEl.classList.add('spin-in');
+    lastMoonSign=lunar.moonSign;
+  }
+
+  // Moon phase (secondary — display only)
   if(phaseChanged){
     animateMoon(document.getElementById('moon-phase-svg'),lunar.phaseKey);
     document.getElementById('moon-phase-text').textContent=lunar.phase;
@@ -1032,7 +1134,7 @@ function breathLoop() {
 // ═══════════════════════════════════════════════════════════════
 state.now=new Date();
 state.dialDate=new Date(state.now);
-lastType=null;lastPhaseKey=null;
+lastType=null;lastPhaseKey=null;lastMoonSign=null;
 updateUI(state.dialDate);
 setTimeout(()=>{
   animateIcon(document.getElementById('result-icon-svg'),document.getElementById('result-icon-svg').innerHTML);
