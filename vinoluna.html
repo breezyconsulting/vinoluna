@@ -580,14 +580,15 @@ footer{
 //   Water (Cancer, Scorpio, Pisces)     → Leaf day
 //
 // The moon passes through the full zodiac every 27.32 days
-// (sidereal month), spending roughly 2–3 days in each sign.
-// Note: Thun uses the IAU sidereal boundaries (actual constel-
-// lation sizes), not tropical astrology's neat 30° divisions.
-// This is why her published calendar shows Ophiuchus days and
-// unequal transit times. Our algorithm uses simplified equal
-// 30° sidereal segments, which matches Thun's published
-// calendar within ~1 day. For exact production accuracy,
-// port Meeus's lunar longitude algorithms + IAU boundaries.
+// (sidereal month), spending an UNEQUAL amount of time in each
+// sign — anywhere from ~1 day (Scorpio) to ~4.5 days (Virgo).
+// This algorithm uses the real IAU (1930) constellation boundary
+// crossings along the ecliptic, matching Thun's published calendar
+// far more closely than an equal-30°-per-sign approximation would.
+// The modern IAU boundary work also carves out a 13th "sign,"
+// Ophiuchus, between Scorpio and Sagittarius — but Thun's own
+// calendar keeps to the traditional 12 constellations, so that
+// span is folded into Scorpio here (see ZODIAC_SEGMENTS below).
 // ═══════════════════════════════════════════════════════════════
 
 const ZODIAC_DAY_TYPE = {
@@ -630,6 +631,33 @@ const DAY_CONFIG = {
   leaf:   {label:'Leaf Day',   verdict:'AVOID',sub:'Wines taste muted and flat',    corner:'WATER SIGN'},
   root:   {label:'Root Day',   verdict:'AVOID',sub:'Poor day for wine appreciation',corner:'EARTH SIGN'},
 };
+
+// Real (unequal) zodiac constellation boundaries — the ecliptic
+// longitude (J2000) at which the moon crosses from the previous
+// constellation into this one, per the IAU's 1930 boundary work.
+// Ophiuchus's modern span (~247.6°–266.2°) is merged into Scorpio,
+// matching Thun's traditional 12-constellation calendar.
+const ZODIAC_SEGMENTS = [
+  { sign: 'aries',       start: 28.687  },
+  { sign: 'taurus',      start: 53.417  },
+  { sign: 'gemini',      start: 90.140  },
+  { sign: 'cancer',      start: 117.988 },
+  { sign: 'leo',         start: 138.038 },
+  { sign: 'virgo',       start: 173.851 },
+  { sign: 'libra',       start: 217.810 },
+  { sign: 'scorpio',     start: 241.047 },
+  { sign: 'sagittarius', start: 266.238 },
+  { sign: 'capricorn',   start: 299.656 },
+  { sign: 'aquarius',    start: 327.488 },
+  { sign: 'pisces',      start: 351.650 },
+];
+
+function getZodiacSegmentIndex(longitude) {
+  for (let i = ZODIAC_SEGMENTS.length - 1; i >= 0; i--) {
+    if (longitude >= ZODIAC_SEGMENTS[i].start) return i;
+  }
+  return ZODIAC_SEGMENTS.length - 1; // wrapped past 0° — still in Pisces
+}
 
 const NOTES = {
   fruit:  [
@@ -699,19 +727,21 @@ function getLunarData(date) {
   let moonLongitude = (anchorLongitude + elapsedDays * degreesPerDay) % 360;
   if (moonLongitude < 0) moonLongitude += 360;
 
-  // Map longitude → sidereal zodiac constellation
-  // Using equal 30° divisions starting from 0° = Aries.
-  // (Thun's actual boundaries use IAU constellation sizes,
-  //  which differ by ~1 day either side — see algorithm note above.)
-  const signs = ['aries','taurus','gemini','cancer','leo','virgo',
-                 'libra','scorpio','sagittarius','capricorn','aquarius','pisces'];
-  const signIndex = Math.floor(moonLongitude / 30);
-  const moonSign = signs[signIndex];
+  // Map longitude → actual zodiac constellation (unequal widths)
+  const segIndex = getZodiacSegmentIndex(moonLongitude);
+  const seg = ZODIAC_SEGMENTS[segIndex];
+  const nextSeg = ZODIAC_SEGMENTS[(segIndex + 1) % ZODIAC_SEGMENTS.length];
+  const moonSign = seg.sign;
   const dayType = ZODIAC_DAY_TYPE[moonSign];
 
   // How far into the sign, and how many hours until it changes
-  const degIntoSign = moonLongitude % 30;
-  const hoursLeftInSign = ((30 - degIntoSign) / degreesPerDay) * 24;
+  // (segStart/segEnd are unwrapped past 0°/360° as needed so both
+  //  sit on the same side of the Pisces↔Aries seam as moonLongitude)
+  const segStart = seg.start > moonLongitude ? seg.start - 360 : seg.start;
+  let segEnd = nextSeg.start;
+  if (segEnd <= segStart) segEnd += 360;
+  const degIntoSign = moonLongitude - segStart;
+  const hoursLeftInSign = ((segEnd - moonLongitude) / degreesPerDay) * 24;
   const voidOfCourse = hoursLeftInSign < 4; // near sign boundary
 
   return {
