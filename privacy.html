@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy | VinoLuna</title>
+<meta name="description" content="VinoLuna's privacy policy. What data the app and website collect, why, and how it's used — in plain English.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://vinoluna.app/privacy">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ink:#2A2A2A;--ink2:#5A5A5A;--ink3:#9A9A9A;
+  --paper:#EBEBEB;--rule:#D0D0D0;
+  --cream:#F2EBD9;--olive:#6B6B3A;--olive-light:#8E8E50;
+  --wine:#6B1A2A;--wine-mid:#8C2438;
+}
+html,body{background:var(--paper);min-height:100vh;}
+body{color:var(--ink);font-family:'Barlow','Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+
+.site-nav{
+  border-bottom:2px solid var(--ink);
+  padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--paper);z-index:100;
+}
+.nav-inner{max-width:900px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:16px 0;}
+.nav-wordmark{font-size:18px;font-weight:700;letter-spacing:-.02em;text-decoration:none;color:var(--ink);}
+.nav-wordmark span{font-weight:300;}
+.nav-links{display:flex;gap:24px;}
+.nav-links a{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);text-decoration:none;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:var(--ink);}
+.nav-cta{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--paper);background:var(--wine);padding:8px 16px;text-decoration:none;transition:background .2s;}
+.nav-cta:hover{background:var(--wine-mid);}
+
+.outer{max-width:900px;margin:0 auto;padding:0 24px 80px;}
+
+.hero{padding:56px 0 40px;border-bottom:1px solid var(--rule);}
+.hero-kicker{font-size:9px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--wine);margin-bottom:12px;}
+.hero-title{font-size:clamp(32px,6vw,52px);font-weight:900;letter-spacing:-.03em;line-height:.98;margin-bottom:16px;}
+.hero-lead{font-size:clamp(14px,2vw,16px);font-weight:300;line-height:1.7;color:var(--ink2);max-width:620px;}
+.hero-updated{font-size:11px;font-weight:400;color:var(--ink3);margin-top:12px;}
+
+.articles{display:flex;flex-direction:column;gap:0;max-width:720px;margin-top:16px;}
+.article-section{padding:36px 0;border-bottom:1px solid var(--rule);}
+.article-section:last-child{border-bottom:none;}
+.section-number{font-size:9px;font-weight:700;letter-spacing:.2em;color:var(--ink3);display:block;margin-bottom:8px;}
+.section-title{font-size:clamp(18px,3vw,24px);font-weight:900;letter-spacing:-.02em;line-height:1.15;margin-bottom:16px;}
+.body-text{font-size:14px;font-weight:300;line-height:1.8;color:var(--ink2);}
+.body-text+.body-text{margin-top:14px;}
+.body-text strong{font-weight:700;color:var(--ink);}
+.body-text a{color:var(--wine);text-decoration:none;border-bottom:1px solid var(--wine-mid);}
+ul.plain{margin:14px 0 0 0;padding-left:20px;}
+ul.plain li{font-size:14px;font-weight:300;line-height:1.8;color:var(--ink2);margin-bottom:6px;}
+ul.plain li strong{font-weight:700;color:var(--ink);}
+
+.data-table{width:100%;border-collapse:collapse;margin:18px 0 4px;font-size:13px;}
+.data-table th{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);padding:8px 12px;text-align:left;border-bottom:2px solid var(--ink);}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--rule);color:var(--ink2);font-weight:300;line-height:1.5;vertical-align:top;}
+.data-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap;}
+
+footer{border-top:2px solid var(--ink);padding:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;max-width:900px;margin:40px auto 0;}
+.footer-left{font-size:9px;color:var(--ink3);letter-spacing:.06em;line-height:2;}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+.footer-links a{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);text-decoration:none;transition:color .2s;}
+.footer-links a:hover{color:var(--ink);}
+
+@media(max-width:480px){
+  .nav-links{display:none;}
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a class="nav-wordmark" href="index.html">Vino<span>Luna</span></a>
+    <div class="nav-links">
+      <a href="learn.html">Learn</a>
+      <a href="privacy.html" class="active">Privacy</a>
+      <a href="support.html">Support</a>
+    </div>
+    <a class="nav-cta" href="index.html">Check Today →</a>
+  </div>
+</nav>
+
+<div class="outer">
+
+  <div class="hero">
+    <div class="hero-kicker">Legal</div>
+    <h1 class="hero-title">Privacy Policy</h1>
+    <p class="hero-lead">VinoLuna is a lunar wine calendar — a simple utility, not a data business. This page explains, plainly, what the app and website collect and why.</p>
+    <div class="hero-updated">Last updated: 17 September 2026</div>
+  </div>
+
+  <main class="articles">
+
+    <section class="article-section" id="overview">
+      <span class="section-number">01</span>
+      <h2 class="section-title">Overview</h2>
+      <p class="body-text">VinoLuna ("the app," "the website," "we," "us") is published by Caleb Halkett, trading as Breezy Consulting. VinoLuna tells you whether today is a good day to drink wine, based on the moon's position in the zodiac. It does not require an account, does not have a login, and does not sell or share personal data with third parties for advertising or marketing purposes.</p>
+      <p class="body-text">This policy covers both the <strong>VinoLuna iOS app</strong> and the <strong>vinoluna.app website</strong>. Where their data practices differ, that's noted below.</p>
+    </section>
+
+    <section class="article-section" id="app-data">
+      <span class="section-number">02</span>
+      <h2 class="section-title">What the iOS App Collects</h2>
+      <p class="body-text">The VinoLuna iOS app collects exactly one category of data:</p>
+      <table class="data-table">
+        <thead><tr><th>Data</th><th>Why</th><th>Shared?</th></tr></thead>
+        <tbody>
+          <tr><td>Approximate location</td><td>To show your local city and region on screen, purely for display. Requested only "while using the app" — VinoLuna never asks for background location access.</td><td>No. Location is resolved on-device using Apple's CoreLocation and geocoding services and is never sent to VinoLuna's own servers or any third party.</td></tr>
+        </tbody>
+      </table>
+      <p class="body-text">That's the complete list. The app does not collect your name, email, contacts, photos, health data, financial information, browsing history, or any identifier that could be used to track you across other apps or websites. There is no user account, no analytics SDK, and no advertising SDK built into the app.</p>
+      <p class="body-text">If you decline location access, the app works exactly the same — you just won't see a city/region label next to the date.</p>
+    </section>
+
+    <section class="article-section" id="widget">
+      <span class="section-number">03</span>
+      <h2 class="section-title">Home Screen &amp; Lock Screen Widget</h2>
+      <p class="body-text">VinoLuna's optional widget calculates today's day type using the same on-device calendar logic as the main app. It does not request location and does not communicate with any server — the calculation (the moon's position in the zodiac) is pure arithmetic based on the current date and time.</p>
+    </section>
+
+    <section class="article-section" id="web-data">
+      <span class="section-number">04</span>
+      <h2 class="section-title">What the Website Collects</h2>
+      <p class="body-text">The vinoluna.app website is a separate product from the iOS app and has slightly different data practices, typical of a public website:</p>
+      <ul class="plain">
+        <li><strong>Location (optional, browser-based):</strong> if you allow it, the site uses your browser's geolocation and a free reverse-geocoding lookup (OpenStreetMap's Nominatim service) to show your city and country. This request goes directly from your browser to OpenStreetMap — VinoLuna's own servers never see your coordinates.</li>
+        <li><strong>Analytics:</strong> the site uses Google Analytics (gtag.js) to understand aggregate traffic — pages viewed, approximate location by country/city, device type. This is standard, anonymised web analytics; it is not used to identify you personally.</li>
+        <li><strong>Advertising:</strong> the site displays ads served by Google AdSense, which may use cookies to show relevant ads. You can opt out of personalised advertising at <a href="https://adssettings.google.com" target="_blank" rel="noopener">adssettings.google.com</a>.</li>
+      </ul>
+    </section>
+
+    <section class="article-section" id="retention">
+      <span class="section-number">05</span>
+      <h2 class="section-title">Data Retention &amp; Your Rights</h2>
+      <p class="body-text">Because the app doesn't create accounts or store personal data on our servers, there's nothing for us to retain, export, or delete on your behalf — nothing is collected in the first place beyond your device's momentary use of location for on-screen display. Website analytics data is retained by Google under their standard Google Analytics retention settings.</p>
+      <p class="body-text">If you have questions about this policy or believe VinoLuna holds data about you that shouldn't exist, contact us — see the <a href="support.html">Support page</a>.</p>
+    </section>
+
+    <section class="article-section" id="children">
+      <span class="section-number">06</span>
+      <h2 class="section-title">Age &amp; Alcohol Reference</h2>
+      <p class="body-text">VinoLuna is a wine-tasting utility and references alcohol as part of its core subject matter (biodynamic wine tasting). It is not directed at children and is not intended for use by anyone under the legal drinking age in their jurisdiction. The app does not sell, serve, or facilitate the purchase of alcohol.</p>
+    </section>
+
+    <section class="article-section" id="changes">
+      <span class="section-number">07</span>
+      <h2 class="section-title">Changes to This Policy</h2>
+      <p class="body-text">If VinoLuna's data practices change — for example, if a future version adds an account system or new integrations — this page will be updated and the "Last updated" date above will change accordingly.</p>
+    </section>
+
+  </main>
+
+</div><!-- .outer -->
+
+<footer>
+  <div class="footer-left">
+    © 2025 VinoLuna · vinoluna.app<br>
+    Published by Caleb Halkett, Breezy Consulting
+  </div>
+  <nav class="footer-links">
+    <a href="index.html">App</a>
+    <a href="learn.html">Learn</a>
+    <a href="support.html">Support</a>
+  </nav>
+</footer>
+
+</body>
+</html>
